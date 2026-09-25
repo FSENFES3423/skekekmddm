@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>PC Forge 3D</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #070a10;
+    color: white;
+}
+
+header {
+    height: 70px;
+    background: #0d121c;
+    border-bottom: 1px solid #242c3c;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 30px;
+
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.logo span {
+    color: #5da9ff;
+}
+
+nav button {
+    background: none;
+    border: none;
+    color: #9da8bb;
+
+    padding: 10px 14px;
+
+    font-size: 15px;
+    cursor: pointer;
+}
+
+nav button:hover,
+nav button.active {
+    color: white;
+}
+
+.page {
+    display: none;
+    max-width: 1400px;
+    margin: auto;
+    padding: 35px;
+}
+
+.page.active {
+    display: block;
+}
+
+.hero {
+    margin-bottom: 30px;
+}
+
+.hero h1 {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+.hero p {
+    color: #9ba6ba;
+    font-size: 18px;
+    max-width: 750px;
+    line-height: 1.6;
+}
+
+.builder {
+    display: grid;
+    grid-template-columns: 1.3fr 0.7fr;
+    gap: 20px;
+}
+
+.viewer {
+    height: 600px;
+
+    background:
+        radial-gradient(
+            circle at center,
+            #1b2b46,
+            #080b11 70%
+        );
+
+    border: 1px solid #26324a;
+    border-radius: 22px;
+
+    position: relative;
+    overflow: hidden;
+}
+
+#scene {
+    width: 100%;
+    height: 100%;
+}
+
+.hint {
+    position: absolute;
+
+    bottom: 15px;
+    left: 15px;
+
+    padding: 10px 14px;
+
+    background: #080c14dd;
+
+    border-radius: 10px;
+
+    color: #9ba6ba;
+
+    font-size: 13px;
+}
+
+.card {
+    background: #0e1420;
+
+    border: 1px solid #222d42;
+
+    border-radius: 18px;
+
+    padding: 22px;
+}
+
+.parts {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.part {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 14px;
+
+    background: #121a28;
+
+    border: 1px solid #263148;
+
+    border-radius: 12px;
+}
+
+.part small {
+    display: block;
+
+    color: #8995a9;
+
+    margin-top: 5px;
+}
+
+.total {
+    font-size: 30px;
+    font-weight: bold;
+
+    margin: 20px 0;
+}
+
+.btn {
+    border: none;
+
+    padding: 12px 18px;
+
+    border-radius: 10px;
+
+    background: #5da9ff;
+
+    color: #06101d;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.btn:hover {
+    filter: brightness(1.15);
+}
+
+.grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(230px, 1fr));
+
+    gap: 18px;
+}
+
+.product-image {
+    height: 150px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    font-size: 65px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #111a2b,
+            #080c13
+        );
+
+    border-radius: 14px;
+}
+
+.price {
+    font-size: 23px;
+
+    font-weight: bold;
+
+    margin: 15px 0;
+}
+
+.muted {
+    color: #8d99ae;
+}
+
+.learn-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(260px, 1fr));
+
+    gap: 18px;
+}
+
+.cart-item {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 17px 0;
+
+    border-bottom: 1px solid #222a3a;
+}
+
+@media(max-width: 850px) {
+
+    .builder {
+        grid-template-columns: 1fr;
+    }
+
+    .viewer {
+        height: 450px;
+    }
+
+    .hero h1 {
+        font-size: 36px;
+    }
+
+    header {
+        padding: 0 10px;
+    }
+
+    nav button {
+        padding: 7px;
+        font-size: 12px;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+
+<div class="logo">
+PC <span>FORGE</span> 3D
+</div>
+
+<nav>
+
+<button class="active" data-page="builder">
+Сборка
+</button>
+
+<button data-page="learn">
+Изучить ПК
+</button>
+
+<button data-page="shop">
+Магазин
+</button>
+
+<button data-page="cart">
+Корзина (<span id="cartCount">0</span>)
+</button>
+
+</nav>
+
+</header>
+
+
+<!-- ================= СБОРКА ================= -->
+
+<section id="builder" class="page active">
+
+<div class="hero">
+
+<h1>
+Собери свой ПК
+</h1>
+
+<p>
+Собери компьютер из комплектующих,
+изучи его устройство и посмотри
+трёхмерную модель готовой системы.
+</p>
+
+</div>
+
+
+<div class="builder">
+
+
+<div class="viewer">
+
+<div id="scene"></div>
+
+<div class="hint">
+🖱️ Зажми мышь и вращай ПК · Колесо — приблизить
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>
+Комплектующие
+</h2>
+
+<div id="parts" class="parts"></div>
+
+<div class="total" id="total">
+0 ₽
+</div>
+
+<button class="btn" onclick="addBuild()">
+Добавить готовый ПК в магазин
+</button>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- ================= ИЗУЧЕНИЕ ================= -->
+
+<section id="learn" class="page">
+
+<div class="hero">
+
+<h1>
+Изучение ПК
+</h1>
+
+<p>
+Разберись, из каких деталей состоит компьютер
+и какую функцию выполняет каждая из них.
+</p>
+
+</div>
+
+<div id="learnGrid" class="learn-grid"></div>
+
+</section>
+
+
+
+<!-- ================= МАГАЗИН ================= -->
+
+<section id="shop" class="page">
+
+<div class="hero">
+
+<h1>
+Магазин комплектующих
+</h1>
+
+<p>
+Выбирай детали и собирай собственный компьютер.
+</p>
+
+</div>
+
+<div id="shopGrid" class="grid"></div>
+
+</section>
+
+
+
+<!-- ================= КОРЗИНА ================= -->
+
+<section id="cart" class="page">
+
+<div class="hero">
+
+<h1>
+Корзина
+</h1>
+
+<p>
+Здесь находятся выбранные комплектующие
+и готовые компьютеры.
+</p>
+
+</div>
+
+<div class="card">
+
+<div id="cartItems"></div>
+
+<div class="total" id="cartTotal">
+0 ₽
+</div>
+
+<button class="btn" onclick="buy()">
+Оформить заказ
+</button>
+
+</div>
+
+</section>
+
+
+
+<script type="module">
+
+/* =====================================================
+   THREE.JS
+===================================================== */
+
+import * as THREE from
+"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+
+import { OrbitControls } from
+"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+
+
+/* =====================================================
+   ТОВАРЫ
+===================================================== */
+
+const products = [
+
+{
+id: "cpu",
+name: "Ryzen 7 7800X3D",
+type: "Процессор",
+price: 38990,
+icon: "🧠",
+
+description:
+"Процессор выполняет вычисления и управляет работой программ."
+},
+
+{
+id: "gpu",
+name: "RTX 4070 SUPER",
+type: "Видеокарта",
+price: 69990,
+icon: "🎮",
+
+description:
+"Видеокарта отвечает за обработку графики и создание изображения."
+},
+
+{
+id: "ram",
+name: "DDR5 32 GB",
+type: "Оперативная память",
+price: 11990,
+icon: "💾",
+
+description:
+"Оперативная память временно хранит данные, которыми сейчас пользуются программы."
+},
+
+{
+id: "ssd",
+name: "NVMe SSD 1 TB",
+type: "SSD",
+price: 8990,
+icon: "⚡",
+
+description:
+"SSD хранит операционную систему, игры, программы и файлы."
+},
+
+{
+id: "motherboard",
+name: "B650",
+type: "Материнская плата",
+price: 15990,
+icon: "🟩",
+
+description:
+"Материнская плата соединяет все основные комплектующие компьютера."
+},
+
+{
+id: "psu",
+name: "750W",
+type: "Блок питания",
+price: 9990,
+icon: "🔌",
+
+description:
+"Блок питания обеспечивает комплектующие электроэнергией."
+}
+
+];
+
+
+
+/* =====================================================
+   ТЕКУЩАЯ СБОРКА
+===================================================== */
+
+let build = {
+
+cpu: products[0],
+
+gpu: products[1],
+
+ram: products[2],
+
+ssd: products[3],
+
+motherboard: products[4],
+
+psu: products[5]
+
+};
+
+
+let cart = [];
+
+
+
+function money(number) {
+
+return number.toLocaleString("ru-RU") + " ₽";
+
+}
+
+
+function buildPrice() {
+
+return Object
+.values(build)
+.reduce(
+(total, product) =>
+total + product.price,
+0
+);
+
+}
+
+
+
+/* =====================================================
+   ОТОБРАЖЕНИЕ СБОРКИ
+===================================================== */
+
+function renderBuild() {
+
+const container =
+document.getElementById("parts");
+
+
+container.innerHTML = "";
+
+
+for (const product of Object.values(build)) {
+
+container.innerHTML += `
+
+<div class="part">
+
+<div>
+
+<b>
+${product.type}
+</b>
+
+<small>
+${product.name}
+</small>
+
+</div>
+
+<strong>
+${money(product.price)}
+</strong>
+
+</div>
+
+`;
+
+}
+
+
+document.getElementById("total")
+.textContent =
+money(buildPrice());
+
+}
+
+
+
+/* =====================================================
+   ИЗУЧЕНИЕ
+===================================================== */
+
+function renderLearn() {
+
+const container =
+document.getElementById("learnGrid");
+
+
+container.innerHTML = "";
+
+
+products.forEach(product => {
+
+container.innerHTML += `
+
+<div class="card">
+
+<div class="product-image">
+${product.icon}
+</div>
+
+<h2>
+${product.type}
+</h2>
+
+<h3>
+${product.name}
+</h3>
+
+<p class="muted">
+${product.description}
+</p>
+
+</div>
+
+`;
+
+});
+
+}
+
+
+
+/* =====================================================
+   МАГАЗИН
+===================================================== */
+
+function renderShop() {
+
+const container =
+document.getElementById("shopGrid");
+
+
+container.innerHTML = "";
+
+
+products.forEach(product => {
+
+container.innerHTML += `
+
+<div class="card">
+
+<div class="product-image">
+${product.icon}
+</div>
+
+<h2>
+${product.name}
+</h2>
+
+<p class="muted">
+${product.type}
+</p>
+
+<div class="price">
+${money(product.price)}
+</div>
+
+<button
+class="btn"
+onclick="addProduct('${product.id}')">
+
+В корзину
+
+</button>
+
+</div>
+
+`;
+
+});
+
+}
+
+
+
+window.addProduct = function(id) {
+
+const product =
+products.find(
+p => p.id === id
+);
+
+cart.push(product);
+
+renderCart();
+
+};
+
+
+
+window.addBuild = function() {
+
+cart.push({
+
+name: "Готовый ПК PC Forge",
+
+type: "Компьютер",
+
+price: buildPrice()
+
+});
+
+renderCart();
+
+alert(
+"Готовая сборка добавлена в корзину!"
+);
+
+};
+
+
+
+/* =====================================================
+   КОРЗИНА
+===================================================== */
+
+function renderCart() {
+
+const container =
+document.getElementById("cartItems");
+
+
+document.getElementById("cartCount")
+.textContent =
+cart.length;
+
+
+if (cart.length === 0) {
+
+container.innerHTML = `
+<p class="muted">
+Корзина пока пуста.
+</p>
+`;
+
+}
+else {
+
+container.innerHTML = "";
+
+cart.forEach((product,index) => {
+
+container.innerHTML += `
+
+<div class="cart-item">
+
+<div>
+
+<b>
+${product.name}
+</b>
+
+<div class="muted">
+${product.type}
+</div>
+
+</div>
+
+<div>
+
+<strong>
+${money(product.price)}
+</strong>
+
+<button
+class="btn"
+style="margin-left:10px"
+onclick="removeProduct(${index})">
+
+Удалить
+
+</button>
+
+</div>
+
+</div>
+
+`;
+
+});
+
+}
+
+
+const total =
+cart.reduce(
+(sum,product) =>
+sum + product.price,
+0
+);
+
+
+document.getElementById("cartTotal")
+.textContent =
+money(total);
+
+}
+
+
+
+window.removeProduct = function(index) {
+
+cart.splice(index,1);
+
+renderCart();
+
+};
+
+
+
+window.buy = function() {
+
+if(cart.length === 0) {
+
+alert(
+"Корзина пустая."
+);
+
+return;
+
+}
+
+
+alert(
+"Заказ оформлен! Это демонстрация школьного проекта."
+);
+
+};
+
+
+
+/* =====================================================
+   ПЕРЕКЛЮЧЕНИЕ СТРАНИЦ
+===================================================== */
+
+document
+.querySelectorAll("nav button")
+.forEach(button => {
+
+button.onclick = () => {
+
+document
+.querySelectorAll("nav button")
+.forEach(
+b => b.classList.remove("active")
+);
+
+button.classList.add("active");
+
+
+document
+.querySelectorAll(".page")
+.forEach(
+page => page.classList.remove("active")
+);
+
+
+document
+.getElementById(
+button.dataset.page
+)
+.classList.add("active");
+
+};
+
+});
+
+
+
+renderBuild();
+
+renderLearn();
+
+renderShop();
+
+renderCart();
+
+
+
+/* =====================================================
+   3D СЦЕНА
+===================================================== */
+
+const scene =
+new THREE.Scene();
+
+
+const camera =
+new THREE.PerspectiveCamera(
+50,
+1,
+0.1,
+100
+);
+
+
+camera.position.set(
+5,
+3.5,
+7
+);
+
+
+
+const renderer =
+new THREE.WebGLRenderer({
+antialias: true,
+alpha: true
+});
+
+
+renderer.setPixelRatio(
+Math.min(
+window.devicePixelRatio,
+2
+)
+);
+
+
+document
+.getElementById("scene")
+.appendChild(
+renderer.domElement
+);
+
+
+
+const controls =
+new OrbitControls(
+camera,
+renderer.domElement
+);
+
+
+controls.enableDamping = true;
+
+controls.target.set(
+0,
+2,
+0
+);
+
+
+
+/* ОСВЕЩЕНИЕ */
+
+const light =
+new THREE.HemisphereLight(
+0xffffff,
+0x202020,
+2
+);
+
+scene.add(light);
+
+
+const directional =
+new THREE.DirectionalLight(
+0xffffff,
+3
+);
+
+directional.position.set(
+5,
+8,
+5
+);
+
+scene.add(directional);
+
+
+
+/* =====================================================
+   КОРПУС
+===================================================== */
+
+const pc =
+new THREE.Group();
+
+scene.add(pc);
+
+
+
+function createBox(
+width,
+height,
+depth,
+x,
+y,
+z,
+color,
+transparent = false
+) {
+
+const geometry =
+new THREE.BoxGeometry(
+width,
+height,
+depth
+);
+
+
+const material =
+new THREE.MeshStandardMaterial({
+
+color: color,
+
+metalness: 0.5,
+
+roughness: 0.3,
+
+transparent: transparent,
+
+opacity:
+transparent
+? 0.18
+: 1
+
+});
+
+
+const mesh =
+new THREE.Mesh(
+geometry,
+material
+);
+
+
+mesh.position.set(
+x,
+y,
+z
+);
+
+
+return mesh;
+
+}
+
+
+
+/* Нижняя часть */
+
+pc.add(
+createBox(
+4,
+0.25,
+3.2,
+0,
+0,
+0,
+0x151a24
+)
+);
+
+
+/* Верх */
+
+pc.add(
+createBox(
+4,
+0.25,
+3.2,
+0,
+4.2,
+0,
+0x151a24
+)
+);
+
+
+/* Левая стенка */
+
+pc.add(
+createBox(
+0.25,
+4,
+3.2,
+-2,
+2.1,
+0,
+0x151a24
+)
+);
+
+
+/* Правая стенка */
+
+pc.add(
+createBox(
+0.25,
+4,
+3.2,
+2,
+2.1,
+0,
+0x151a24
+)
+);
+
+
+/* Задняя стенка */
+
+pc.add(
+createBox(
+4,
+4,
+0.2,
+0,
+2.1,
+-1.6,
+0x151a24
+)
+);
+
+
+/* Стекло */
+
+pc.add(
+createBox(
+4,
+4,
+0.08,
+0,
+2.1,
+1.6,
+0x5da9ff,
+true
+)
+);
+
+
+
+/* =====================================================
+   МАТЕРИНСКАЯ ПЛАТА
+===================================================== */
+
+pc.add(
+createBox(
+2.8,
+0.12,
+2.2,
+0,
+3.3,
+-0.4,
+0x17452f
+)
+);
+
+
+
+/* =====================================================
+   ВИДЕОКАРТА
+===================================================== */
+
+pc.add(
+createBox(
+2.8,
+0.5,
+0.8,
+0,
+2.35,
+0.45,
+0x202630
+)
+);
+
+
+
+/* =====================================================
+   ПРОЦЕССОР
+===================================================== */
+
+pc.add(
+createBox(
+0.7,
+0.15,
+0.7,
+0,
+3.45,
+-0.55,
+0xadb7c8
+)
+);
+
+
+
+/* =====================================================
+   ОПЕРАТИВНАЯ ПАМЯТЬ
+===================================================== */
+
+for(let i = 0; i < 2; i++) {
+
+pc.add(
+createBox(
+0.15,
+0.7,
+0.8,
+-0.7 + i * 0.35,
+3.75,
+-0.5,
+0x303a4d
+)
+);
+
+}
+
+
+
+/* =====================================================
+   SSD
+===================================================== */
+
+pc.add(
+createBox(
+0.35,
+0.1,
+1.2,
+0.8,
+3.1,
+-0.45,
+0x444d5e
+)
+);
+
+
+
+/* =====================================================
+   БЛОК ПИТАНИЯ
+===================================================== */
+
+pc.add(
+createBox(
+1.7,
+0.8,
+1.4,
+0,
+0.7,
+-0.45,
+0x10141c
+)
+);
+
+
+
+/* =====================================================
+   ВЕНТИЛЯТОРЫ
+===================================================== */
+
+for(
+let i = 0;
+i < 3;
+i++
+) {
+
+const fan =
+new THREE.Mesh(
+
+new THREE.CylinderGeometry(
+0.5,
+0.5,
+0.12,
+32
+),
+
+new THREE.MeshStandardMaterial({
+color: 0x252d3b
+})
+
+);
+
+
+fan.rotation.x =
+Math.PI / 2;
+
+
+fan.position.set(
+-1.15 + i * 1.15,
+2,
+1.48
+);
+
+
+pc.add(fan);
+
+}
+
+
+
+/* =====================================================
+   RGB ПОЛОСКА
+===================================================== */
+
+const rgb =
+new THREE.Mesh(
+
+new THREE.BoxGeometry(
+2.8,
+0.04,
+0.05
+),
+
+new THREE.MeshBasicMaterial({
+color: 0x5da9ff
+})
+
+);
+
+
+rgb.position.set(
+0,
+2.75,
+1.48
+);
+
+
+pc.add(rgb);
+
+
+
+/* =====================================================
+   РАЗМЕР ОКНА
+===================================================== */
+
+function resize() {
+
+const container =
+document.getElementById("scene");
+
+const width =
+container.clientWidth;
+
+const height =
+container.clientHeight;
+
+
+renderer.setSize(
+width,
+height,
+false
+);
+
+
+camera.aspect =
+width / height;
+
+
+camera.updateProjectionMatrix();
+
+}
+
+
+window.addEventListener(
+"resize",
+resize
+);
+
+
+resize();
+
+
+
+/* =====================================================
+   АНИМАЦИЯ
+===================================================== */
+
+function animate() {
+
+requestAnimationFrame(
+animate
+);
+
+controls.update();
+
+
+pc.rotation.y += 0.002;
+
+
+renderer.render(
+scene,
+camera
+);
+
+}
+
+
+animate();
+
+</script>
+
+</body>
+</html>
